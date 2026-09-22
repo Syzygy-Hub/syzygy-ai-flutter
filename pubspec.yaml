@@ -1,7 +1,6 @@
 name: syzygy_ai_flutter
 version: 1.0.0
 description: "AI layer contracts for the Syzygy Flutter ecosystem"
-publish_to: https://pub.dev
 repository: https://github.com/Syzygy-Hub/syzygy-ai-flutter
 
 environment:
