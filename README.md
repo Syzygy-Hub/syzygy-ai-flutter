@@ -19,6 +19,9 @@ syzygy-ai-flutter defines the AI contract layer that every Syzygy Flutter applic
 
 Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-Hub/.github/blob/main/docs/ecosystem-fragment.md)
 
+> **v1.0.0 — Pure Contracts Only**
+> This release contains abstract interface classes and data classes only. No concrete implementations are included. Implementations targeting specific LLM backends, vector stores, or memory systems should depend on this package and provide their own conforming types.
+
 ### Contracts
 
 | Contract | Description |
@@ -27,7 +30,7 @@ Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-H
 | `AgentProtocol` | ReAct loop contract — Reason → Act → Observe |
 | `RAGProvider` | Retrieval-augmented generation interface |
 | `MemoryManager` | Conversation context management contract |
-| `StreamHandler` | Token streaming abstraction |
+| `EmbeddingProvider` | Abstract interface for generating text embeddings |
 
 ## Release Process
 
@@ -66,7 +69,7 @@ import 'package:syzygy_ai_flutter/syzygy_ai_flutter.dart';
 
 ## Architecture
 
-**Depends on:** syzygy-foundation-flutter
+**Depends on:** syzygy-foundation-flutter ^1.2.0
 
 **Used by:** AI feature libraries and application layers that require LLM, agent, or RAG integration
 
