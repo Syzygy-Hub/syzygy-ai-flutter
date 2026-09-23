@@ -1,4 +1,4 @@
-[![Flutter](https://img.shields.io/badge/Flutter-Dart-7F77DD?style=flat)](https://flutter.dev/) [![Dart](https://img.shields.io/badge/Dart-3.0-1D9E75?logo=dart&logoColor=white&style=flat)](https://dart.dev) [![CI](https://img.shields.io/github/actions/workflow/status/Syzygy-Hub/syzygy-ai-flutter/ci.yml?label=ci&style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/actions/workflows/ci.yml) [![Version](https://img.shields.io/badge/version-1.0.0-D85A30?style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/releases) [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-Dart-7F77DD?style=flat)](https://flutter.dev/) [![Dart](https://img.shields.io/badge/Dart-3.0-1D9E75?logo=dart&logoColor=white&style=flat)](https://dart.dev) [![CI](https://img.shields.io/github/actions/workflow/status/Syzygy-Hub/syzygy-ai-flutter/ci.yml?label=ci&style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/actions/workflows/ci.yml) [![Version](https://img.shields.io/badge/version-1.1.0-D85A30?style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/releases) [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Syzygy-Hub/.github/main/brand/assets/banners/syzygy-banner-dark-1200.png">
@@ -19,6 +19,11 @@ syzygy-ai-flutter defines the AI contract layer that every Syzygy Flutter applic
 
 Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-Hub/.github/blob/main/docs/ecosystem-fragment.md)
 
+> **v1.1.0 — Structured Tool Calling, Typed Errors & Operational Metadata**
+> Adds `JsonValue` sealed type hierarchy, structured tool-call contracts (`ToolCallRequest`/`ToolCallResult`), a typed `AIError` sealed class, stream-semantics documentation (`StreamContract`), RAG options (`RAGOptions`), namespaced memory methods, and operational metadata fields on requests, responses, and chunks.
+>
+> `RAGChunk.id` is an optional `String?` field in v1.1.0 (will be required in v2.0.0). `NamespacedMemoryManager` is now a separate interface extending `MemoryManager`.
+
 > **v1.0.0 — Pure Contracts Only**
 > This release contains abstract interface classes and data classes only. No concrete implementations are included. Implementations targeting specific LLM backends, vector stores, or memory systems should depend on this package and provide their own conforming types.
 
@@ -31,6 +36,10 @@ Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-H
 | `RAGProvider` | Retrieval-augmented generation interface |
 | `MemoryManager` | Conversation context management contract |
 | `EmbeddingProvider` | Abstract interface for generating text embeddings |
+
+### NamespacedMemoryManager — Platform Note
+
+Flutter's `NamespacedMemoryManager` uses distinct method names (`addToNamespace`, `retrieveFromNamespace`, `deleteEntry`, `clearNamespace`) because Dart does not support method overloading. On other platforms (iOS, Android, React Native) the same operations are expressed as overloads of the base `MemoryManager` verbs with an additional `namespace` parameter. Implementations targeting multiple platforms should map these names accordingly.
 
 ## Release Process
 
@@ -60,7 +69,7 @@ For the full release standard see the [Syzygy-Hub/.github release standard](http
 
 ```yaml
 dependencies:
-  syzygy_ai_flutter: ^1.0.0
+  syzygy_ai_flutter: ^1.1.0
 ```
 
 ```dart
@@ -74,6 +83,16 @@ import 'package:syzygy_ai_flutter/syzygy_ai_flutter.dart';
 **Used by:** AI feature libraries and application layers that require LLM, agent, or RAG integration
 
 For the full ecosystem architecture see [syzygy-ecosystem.md](https://github.com/Syzygy-Hub/.github/blob/main/engineering/architecture/syzygy-ecosystem.md).
+
+## Development Setup
+
+After cloning this repository, install the pre-push hook to run `dart analyze` automatically before every push:
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+This installs a `.git/hooks/pre-push` hook that blocks pushes when analysis fails. Use `git push --no-verify` to bypass in an emergency.
 
 ## Contributing
 

@@ -15,9 +15,13 @@ class LLMResponse {
   final String content;
   final TokenUsage? tokenUsage;
   final FinishReason? finishReason;
+  final String? providerName;
+  final String? modelName;
   const LLMResponse({
     required this.content,
     this.tokenUsage,
     this.finishReason,
+    this.providerName,
+    this.modelName,
   });
 }
