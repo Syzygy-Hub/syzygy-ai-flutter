@@ -1,9 +1,19 @@
+import 'tool_call_request.dart';
+import 'tool_call_result.dart';
+
 enum MessageRole { user, assistant, system, tool }
 
 class LLMMessage {
   final MessageRole role;
   final String content;
-  const LLMMessage({required this.role, required this.content});
+  final List<ToolCallRequest>? toolCalls;
+  final ToolCallResult? toolCallResult;
+  const LLMMessage({
+    required this.role,
+    required this.content,
+    this.toolCalls,
+    this.toolCallResult,
+  });
 }
 
 class LLMRequest {
@@ -13,6 +23,8 @@ class LLMRequest {
   final int? maxTokens;
   final double? topP;
   final List<String> stopSequences;
+  final String? requestId;
+  final String? correlationId;
   const LLMRequest({
     required this.messages,
     required this.model,
@@ -20,5 +32,7 @@ class LLMRequest {
     this.maxTokens,
     this.topP,
     this.stopSequences = const [],
+    this.requestId,
+    this.correlationId,
   });
 }
