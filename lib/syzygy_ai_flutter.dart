@@ -1,5 +1,3 @@
-library syzygy_ai_flutter;
-
 // Types
 export 'src/types/json_value.dart';
 
