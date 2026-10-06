@@ -9,7 +9,7 @@ export 'src/contracts/llm/llm_provider.dart';
 export 'src/contracts/llm/llm_request.dart';
 export 'src/contracts/llm/llm_response.dart';
 export 'src/contracts/llm/llm_chunk.dart';
-export 'src/contracts/llm/tool_call_request.dart';
+export 'src/contracts/llm/tool_call.dart';
 export 'src/contracts/llm/tool_call_result.dart';
 export 'src/contracts/llm/stream_contract.dart';
 
@@ -34,3 +34,4 @@ export 'src/contracts/memory/memory_manager.dart';
 export 'src/contracts/memory/namespaced_memory_manager.dart';
 export 'src/contracts/memory/memory_entry.dart';
 export 'src/contracts/memory/conversation_turn.dart';
+export 'src/version.dart';

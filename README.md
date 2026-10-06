@@ -1,4 +1,4 @@
-[![Flutter](https://img.shields.io/badge/Flutter-Dart-7F77DD?style=flat)](https://flutter.dev/) [![Dart](https://img.shields.io/badge/Dart-3.0-1D9E75?logo=dart&logoColor=white&style=flat)](https://dart.dev) [![CI](https://img.shields.io/github/actions/workflow/status/Syzygy-Hub/syzygy-ai-flutter/ci.yml?label=ci&style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/actions/workflows/ci.yml) [![Version](https://img.shields.io/badge/version-1.1.0-D85A30?style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/releases) [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-Dart-7F77DD?style=flat)](https://flutter.dev/) [![Dart](https://img.shields.io/badge/Dart-3.0-1D9E75?logo=dart&logoColor=white&style=flat)](https://dart.dev) [![CI](https://img.shields.io/github/actions/workflow/status/Syzygy-Hub/syzygy-ai-flutter/ci.yml?label=ci&style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/actions/workflows/ci.yml) [![Version](https://img.shields.io/badge/version-3.0.0-D85A30?style=flat)](https://github.com/Syzygy-Hub/syzygy-ai-flutter/releases) [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Syzygy-Hub/.github/main/brand/assets/banners/syzygy-banner-dark-1200.png">
@@ -19,10 +19,10 @@ syzygy-ai-flutter defines the AI contract layer that every Syzygy Flutter applic
 
 Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-Hub/.github/blob/main/docs/ecosystem-fragment.md)
 
-> **v1.1.0 — Structured Tool Calling, Typed Errors & Operational Metadata**
-> Adds `JsonValue` sealed type hierarchy, structured tool-call contracts (`ToolCallRequest`/`ToolCallResult`), a typed `AIError` sealed class, stream-semantics documentation (`StreamContract`), RAG options (`RAGOptions`), namespaced memory methods, and operational metadata fields on requests, responses, and chunks.
+> **v3.0.0 — Tool Calling, RAGOptions & Breaking API Cleanup**
+> Adds tool calling (`LLMRequest.tools`, `LLMResponse.toolCalls`) with a single `ToolCall` type, and `RAGOptions.maxResults` for bounding retrieval. Also exports `kSyzygyAIVersion`.
 >
-> `RAGChunk.id` is an optional `String?` field in v1.1.0 (will be required in v2.0.0). `NamespacedMemoryManager` is now a separate interface extending `MemoryManager`.
+> Breaking changes: `ToolCall` is now the only tool-call type; `NetworkError` is renamed `AINetworkError` (avoids the clash with Foundation's `NetworkError`); `StreamContract.stream()` takes an `LLMRequest`; `RAGOptions` and `AgentRequest` are no longer `const`; `AgentRequest.maxSteps` is clamped to at least 1; requires `syzygy_foundation_flutter` ^3.0.0. See the [CHANGELOG](CHANGELOG.md) for details.
 
 > **v1.0.0 — Pure Contracts Only**
 > This release contains abstract interface classes and data classes only. No concrete implementations are included. Implementations targeting specific LLM backends, vector stores, or memory systems should depend on this package and provide their own conforming types.
@@ -36,6 +36,20 @@ Full ecosystem architecture: [ecosystem-fragment.md](https://github.com/Syzygy-H
 | `RAGProvider` | Retrieval-augmented generation interface |
 | `MemoryManager` | Conversation context management contract |
 | `EmbeddingProvider` | Abstract interface for generating text embeddings |
+| `StreamContract` | Streaming semantics (completion, cancellation, errors, retry); `stream(LLMRequest)` |
+| `NamespacedMemoryManager` | Namespaced memory operations extending `MemoryManager` |
+
+### RAG
+
+`RAGProvider.retrieve(String query, {RAGOptions? options})` bounds results with `RAGOptions.maxResults` (default 10, values below 1 clamped to 1).
+
+```dart
+final chunks = await rag.retrieve('refund policy', options: RAGOptions(maxResults: 5));
+```
+
+### Tool calling
+
+Pass `tools: List<AgentTool>` on `LLMRequest`; the model's requested invocations come back as `LLMResponse.toolCalls` (`List<ToolCall>`, each with `id`, `name`, `arguments`). Both fields default to null.
 
 ### NamespacedMemoryManager — Platform Note
 
@@ -46,7 +60,7 @@ Flutter's `NamespacedMemoryManager` uses distinct method names (`addToNamespace`
 Releases follow the Syzygy tag-push release flow:
 
 1. Create a `release/X.X.X` branch
-2. Bump the version in `syzygy.yml`, `pubspec.yaml`, the README badge, and `CHANGELOG.md`
+2. Bump the version in `syzygy.yml`, `pubspec.yaml`, `lib/src/version.dart`, the README badge, and `CHANGELOG.md`
 3. Open a PR to `main` and wait for CI to pass
 4. Merge the PR
 5. Push the tag: `git tag X.X.X` and `git push origin X.X.X`
@@ -58,18 +72,18 @@ For the full release standard see the [Syzygy-Hub/.github release standard](http
 
 | Platform | Min Version | Package Manager | Status |
 |---|---|---|---|
-| Flutter | 3.10+ | pub.dev | ✅ Supported |
+| Flutter / Dart | Dart SDK 3.0+ | pub.dev | ✅ Supported |
 
 ## Requirements
 
-- Flutter 3.10+
-- Dart 3.0+
+- Dart SDK `>=3.0.0 <4.0.0` (no Flutter SDK dependency)
+- syzygy_foundation_flutter ^3.0.0
 
 ## Installation
 
 ```yaml
 dependencies:
-  syzygy_ai_flutter: ^1.1.0
+  syzygy_ai_flutter: ^3.0.0
 ```
 
 ```dart
@@ -78,7 +92,7 @@ import 'package:syzygy_ai_flutter/syzygy_ai_flutter.dart';
 
 ## Architecture
 
-**Depends on:** syzygy-foundation-flutter ^1.2.0
+**Depends on:** syzygy-foundation-flutter ^3.0.0
 
 **Used by:** AI feature libraries and application layers that require LLM, agent, or RAG integration
 

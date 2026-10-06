@@ -34,9 +34,9 @@ void main() {
     });
   });
 
-  group('ToolCallRequest contract parity', () {
+  group('ToolCall contract parity', () {
     test('has id, name, arguments fields', () {
-      const req = ToolCallRequest(
+      const req = ToolCall(
         id: 'call-1',
         name: 'search',
         arguments: {'q': JsonString('dart')},
@@ -136,8 +136,8 @@ void main() {
       expect(e.retryAfterMs, 30000);
     });
 
-    test('NetworkError has cause', () {
-      const e = NetworkError('timeout', cause: 'socket closed');
+    test('AINetworkError has cause', () {
+      const e = AINetworkError('timeout', cause: 'socket closed');
       expect(e.cause, 'socket closed');
     });
 
@@ -172,16 +172,109 @@ void main() {
     });
   });
 
+  group('AgentRequest maxSteps', () {
+    test('defaults to 10', () {
+      expect(AgentRequest(input: 'hi').maxSteps, 10);
+    });
+
+    test('values below 1 are clamped to 1', () {
+      expect(AgentRequest(input: 'hi', maxSteps: 0).maxSteps, 1);
+      expect(AgentRequest(input: 'hi', maxSteps: -3).maxSteps, 1);
+    });
+
+    test('valid values are preserved', () {
+      expect(AgentRequest(input: 'hi', maxSteps: 25).maxSteps, 25);
+    });
+  });
+
   group('RAGOptions contract parity', () {
     test('has scoreThreshold and metadata', () {
-      const opts = RAGOptions(scoreThreshold: 0.7, metadata: {'source': 'doc'});
+      final opts = RAGOptions(scoreThreshold: 0.7, metadata: {'source': 'doc'});
       expect(opts.scoreThreshold, 0.7);
       expect(opts.metadata, {'source': 'doc'});
     });
 
     test('metadata defaults to empty map', () {
-      const opts = RAGOptions(scoreThreshold: 0.5);
+      final opts = RAGOptions(scoreThreshold: 0.5);
       expect(opts.metadata, isEmpty);
     });
+
+    test('maxResults defaults to 10', () {
+      expect(RAGOptions().maxResults, 10);
+    });
+
+    test('maxResults below 1 is clamped to 1', () {
+      expect(RAGOptions(maxResults: 0).maxResults, 1);
+      expect(RAGOptions(maxResults: -3).maxResults, 1);
+    });
+
+    test('valid maxResults is preserved', () {
+      expect(RAGOptions(maxResults: 25).maxResults, 25);
+    });
+
+    test('provider receives maxResults via options', () async {
+      final provider = _FakeRag();
+      await provider.retrieve('q', options: RAGOptions(maxResults: 3));
+      expect(provider.last?.maxResults, 3);
+      await provider.retrieve('q');
+      expect(provider.last, isNull);
+    });
   });
+
+  group('Tool calling contract', () {
+    final tool = _FakeTool();
+
+    test('ToolCall construction', () {
+      const call = ToolCall(
+          id: 'c1', name: 'search', arguments: {'q': JsonString('x')});
+      expect(call.id, 'c1');
+      expect(call.name, 'search');
+      expect(call.arguments['q'], isA<JsonString>());
+    });
+
+    test('LLMRequest accepts tools', () {
+      final req = LLMRequest(messages: const [], model: 'm', tools: [tool]);
+      expect(req.tools, hasLength(1));
+    });
+
+    test('LLMRequest tools default to null', () {
+      const req = LLMRequest(messages: [], model: 'm');
+      expect(req.tools, isNull);
+    });
+
+    test('LLMResponse accepts toolCalls', () {
+      const res = LLMResponse(
+        content: '',
+        toolCalls: [ToolCall(id: 'c1', name: 'search', arguments: {})],
+      );
+      expect(res.toolCalls, hasLength(1));
+      expect(res.toolCalls!.first.name, 'search');
+    });
+
+    test('LLMResponse toolCalls default to null', () {
+      const res = LLMResponse(content: 'hi');
+      expect(res.toolCalls, isNull);
+    });
+  });
+}
+
+class _FakeRag implements RAGProvider {
+  RAGOptions? last;
+  @override
+  Future<List<RAGChunk>> retrieve(String query, {RAGOptions? options}) async {
+    last = options;
+    return const [];
+  }
+}
+
+class _FakeTool implements AgentTool {
+  @override
+  String get name => 't';
+  @override
+  String get description => 'd';
+  @override
+  ToolSchema get inputSchema => const {};
+  @override
+  Future<ToolResult> execute(ToolInput input) async =>
+      const ToolResult(output: '');
 }

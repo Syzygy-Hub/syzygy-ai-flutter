@@ -1,5 +1,6 @@
-import 'llm_chunk.dart';
 import '../ai_error.dart';
+import 'llm_chunk.dart';
+import 'llm_request.dart';
 
 /// Defines the streaming contract for LLM token delivery.
 ///
@@ -24,7 +25,7 @@ import '../ai_error.dart';
 /// The stream closes after the first error. Typed errors are subtypes of [AIError].
 ///
 /// ## Retry Semantics
-/// On [NetworkError], callers may retry by submitting a new request with the same
+/// On [AINetworkError], callers may retry by submitting a new request with the same
 /// [LLMRequest.requestId]. Providers that support idempotent retry will de-duplicate
 /// requests sharing the same `requestId`. Other [AIError] subtypes should not be
 /// retried without inspecting the error.
@@ -34,5 +35,5 @@ abstract class StreamContract {
   /// - Emits zero or more partial [LLMChunk] events.
   /// - Ends with a [LLMChunk] whose [LLMChunk.finishReason] is non-null.
   /// - May emit a stream error of type [AIError] on failure.
-  Stream<LLMChunk> stream();
+  Stream<LLMChunk> stream(LLMRequest request);
 }

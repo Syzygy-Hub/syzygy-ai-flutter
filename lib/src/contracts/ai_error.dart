@@ -12,8 +12,8 @@ final class RateLimited extends AIError {
   final int? retryAfterMs; // retry-after in milliseconds
 }
 
-final class NetworkError extends AIError {
-  const NetworkError(super.message, {this.cause});
+final class AINetworkError extends AIError {
+  const AINetworkError(super.message, {this.cause});
   final Object? cause;
 }
 

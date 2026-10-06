@@ -1,3 +1,5 @@
+import 'tool_call.dart';
+
 class TokenUsage {
   final int promptTokens;
   final int completionTokens;
@@ -17,11 +19,15 @@ class LLMResponse {
   final FinishReason? finishReason;
   final String? providerName;
   final String? modelName;
+
+  /// Tool invocations requested by the model. Null (default) means none.
+  final List<ToolCall>? toolCalls;
   const LLMResponse({
     required this.content,
     this.tokenUsage,
     this.finishReason,
     this.providerName,
     this.modelName,
+    this.toolCalls,
   });
 }

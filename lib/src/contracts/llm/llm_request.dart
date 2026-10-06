@@ -1,4 +1,5 @@
-import 'tool_call_request.dart';
+import '../agent/agent_tool.dart';
+import 'tool_call.dart';
 import 'tool_call_result.dart';
 
 enum MessageRole { user, assistant, system, tool }
@@ -6,7 +7,7 @@ enum MessageRole { user, assistant, system, tool }
 class LLMMessage {
   final MessageRole role;
   final String content;
-  final List<ToolCallRequest>? toolCalls;
+  final List<ToolCall>? toolCalls;
   final ToolCallResult? toolCallResult;
   const LLMMessage({
     required this.role,
@@ -25,6 +26,9 @@ class LLMRequest {
   final List<String> stopSequences;
   final String? requestId;
   final String? correlationId;
+
+  /// Tools the model may call. Null (default) means no tools are offered.
+  final List<AgentTool>? tools;
   const LLMRequest({
     required this.messages,
     required this.model,
@@ -34,5 +38,6 @@ class LLMRequest {
     this.stopSequences = const [],
     this.requestId,
     this.correlationId,
+    this.tools,
   });
 }
